@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EverQuest /who Tracker - Download & Setup</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #007bff;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .steps {
+            counter-reset: step-counter;
+        }
+
+        .step {
+            counter-increment: step-counter;
+            margin-bottom: 25px;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .step::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #007bff;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .step h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step p {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #2d3748;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .requirements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .requirement {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            text-align: center;
+        }
+
+        .requirement.met {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .requirement.not-met {
+            border-color: #dc3545;
+            background: #fff8f8;
+        }
+
+        .requirement h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .troubleshooting {
+            background: #ffeaa7;
+            border-left: 5px solid #f39c12;
+        }
+
+        .faq-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .faq-question {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .faq-answer {
+            color: #6c757d;
+            display: none;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        .system-check {
+            margin: 20px 0;
+        }
+
+        .check-button {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .check-button:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .check-results {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .step {
+                padding-left: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 EverQuest /who Tracker</h1>
+            <p>Professional raid tool for monitoring /who results in real-time</p>
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <button class="download-btn" onclick="downloadExecutable()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    🚀 Download .exe (EASY - Just Double-Click!)
+                </button>
+                <button class="download-btn" onclick="downloadTracker()" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+                    📄 Download Python Script (Advanced)
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>🎯 What This Tool Does</h2>
+                <p>This application monitors your EverQuest log file in real-time and automatically captures every /who command result. Perfect for raids, guild recruitment, or PvP intelligence gathering.</p>
+                
+                <div class="success">
+                    <strong>✅ Raid-Ready Features:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Set it once and forget it - no maintenance during raids</li>
+                        <li>Captures only NEW /who results after you start monitoring</li>
+                        <li>Works reliably with EverQuest's file locking</li>
+                        <li>Easy copy/paste and file saving options</li>
+                        <li>Professional split-panel interface</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="section">
+                <h2>🎯 Choose Your Download</h2>
+                <div class="requirements">
+                    <div class="requirement" style="border-color: #28a745; background: #f8fff9;">
+                        <h4>🚀 Executable (.exe) - RECOMMENDED</h4>
+                        <p><strong>Perfect for most users!</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>✅ Just double-click to run</li>
+                            <li>✅ No Python installation needed</li>
+                            <li>✅ No command line required</li>
+                            <li>✅ Works on any Windows computer</li>
+                        </ul>
+                    </div>
+                    <div class="requirement">
+                        <h4>📄 Python Script - ADVANCED</h4>
+                        <p><strong>For technical users only</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>⚠️ Requires Python installation</li>
+                            <li>⚠️ Command line knowledge needed</li>
+                            <li>✅ Smaller file size</li>
+                            <li>✅ Easy to modify/customize</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Setup Instructions</h2>
+                
+                <h3 style="color: #28a745; margin-bottom: 15px;">🚀 Option A: Executable (.exe) - EASY</h3>
+                <div class="steps">
+                    <div class="step">
+                        <h4>Download the .exe File</h4>
+                        <p>Click the green download button above to get the executable.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>Run the Application</h4>
+                        <p>Double-click the downloaded .exe file. Windows may ask if you want to run it - click "Yes" or "Run anyway".</p>
+                        <div class="warning">
+                            <strong>⚠️ Security Note:</strong> Windows Defender might show a warning because the .exe is unsigned. Click "More info" then "Run anyway" - this is normal for community-created tools.
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>Select Your EQ Log File</h4>
+                        <p>Click "Select EverQuest Log File" and navigate to your EverQuest/Logs folder. Choose your character's log file.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>Start Monitoring</h4>
+                        <p>Click "Start Monitoring" and you're done! Use /who in-game and results are captured automatically.</p>
+                    </div>
+                </div>
+
+                <h3 style="color: #6c757d; margin: 30px 0 15px 0;">📄 Option B: Python Script - ADVANCED</h3>
+                <div class="steps">
+                    <div class="step">
+                        <h4>Install Python (if needed)</h4>
+                        <p>Download Python from <a href="https://python.org/downloads" target="_blank">python.org</a>. During installation, check "Add Python to PATH".</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>Download the Script</h4>
+                        <p>Click the gray download button above to get the Python script file.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>Run the Script</h4>
+                        <p>Double-click the .py file, or open command prompt and type:</p>
+                        <div class="code-block">
+                            python eq_who_tracker.py
+                            <button class="copy-btn" onclick="copyToClipboard('python eq_who_tracker.py')">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <h4>Create Your Own .exe (Optional)</h4>
+                        <p>Want to share with others? Install PyInstaller and create your own executable:</p>
+                        <div class="code-block">
+                            pip install pyinstaller
+                            pyinstaller --onefile --windowed --name "EQ_Who_Tracker" eq_who_tracker.py
+                            <button class="copy-btn" onclick="copyToClipboard('pip install pyinstaller\npyinstaller --onefile --windowed --name \\'EQ_Who_Tracker\\' eq_who_tracker.py')">Copy</button>
+                        </div>
+                        <p>Your .exe will be in the dist/ folder!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🤝 Sharing with Others</h2>
+                <p>To share this tool with your guild or friends:</p>
+                <ol style="margin-left: 20px; margin-top: 15px;">
+                    <li>Send them this webpage link</li>
+                    <li>Or share the <code>eq_who_tracker.py</code> file directly</li>
+                    <li>For the easiest experience, create an .exe and share that</li>
+                </ol>
+                
+                <div class="info">
+                    <strong>🛡️ Safety Note:</strong> This tool only reads your log files - it never writes to them or interferes with EverQuest in any way.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadExecutable() {
+            // For now, show instructions for creating the executable
+            alert('🚀 Executable Download\n\nThe .exe version is currently being prepared!\n\nFor immediate use, please:\n1. Download the Python script below\n2. Follow the "Create .exe" instructions in the setup guide\n3. Or contact your guild leader for the compiled version\n\nSorry for the extra step - we\'re working on direct .exe hosting!');
+        }
+
+        function downloadTracker() {
+            const pythonCode = `#!/usr/bin/env python3
+"""
+EverQuest /who Tracker - Desktop Application
+A reliable file monitor for capturing /who results during raids.
+
+Requirements: Python 3.6+ (tkinter included)
+Usage: python eq_who_tracker.py
+"""
+
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox, scrolledtext
+import os
+import time
+import threading
+from datetime import datetime
+import re
+from pathlib import Path
+import json
+
+class EQWhoTracker:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("EverQuest /who Tracker - Raid Edition")
+        self.root.geometry("1200x800")
+        self.root.configure(bg='#f0f0f0')
+        
+        # Application state
+        self.log_file_path = None
+        self.monitoring = False
+        self.last_file_size = 0
+        self.initial_file_size = 0
+        self.who_results = []
+        self.selected_result_index = None
+        self.monitor_thread = None
+        self.stop_monitoring = False
+        
+        # Load settings
+        self.settings_file = "eq_tracker_settings.json"
+        self.load_settings()
+        
+        self.create_widgets()
+        self.setup_styles()
+        
+        # Auto-load last used file if it exists
+        if self.log_file_path and os.path.exists(self.log_file_path):
+            self.load_log_file(self.log_file_path)
+            
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+    def setup_styles(self):
+        """Configure custom styles for better appearance"""
+        style = ttk.Style()
+        style.theme_use('clam')
+        
+        # Configure button styles
+        style.configure('Action.TButton', font=('Arial', 10, 'bold'))
+        style.configure('Success.TButton', background='#28a745', foreground='white')
+        style.configure('Danger.TButton', background='#dc3545', foreground='white')
+        style.configure('Primary.TButton', background='#007bff', foreground='white')
+        
+    def create_widgets(self):
+        """Create the main UI"""
+        # Main title
+        title_frame = tk.Frame(self.root, bg='#2c3e50', height=80)
+        title_frame.pack(fill='x', padx=0, pady=0)
+        title_frame.pack_propagate(False)
+        
+        title_label = tk.Label(title_frame, text="🎮 EverQuest /who Tracker - Raid Edition", 
+                              font=('Arial', 18, 'bold'), fg='white', bg='#2c3e50')
+        title_label.pack(expand=True)
+        
+        # Main container
+        main_frame = tk.Frame(self.root, bg='#f0f0f0')
+        main_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        
+        # File selection section
+        file_frame = tk.LabelFrame(main_frame, text="📁 Log File Setup", 
+                                  font=('Arial', 12, 'bold'), bg='#f0f0f0', fg='#2c3e50')
+        file_frame.pack(fill='x', pady=(0, 15))
+        
+        file_inner = tk.Frame(file_frame, bg='#f0f0f0')
+        file_inner.pack(fill='x', padx=15, pady=15)
+        
+        ttk.Button(file_inner, text="Select EverQuest Log File", 
+                  command=self.select_log_file, style='Action.TButton').pack(side='left')
+        
+        self.file_label = tk.Label(file_inner, text="No file selected", 
+                                  font=('Arial', 10), bg='#f0f0f0', fg='#666')
+        self.file_label.pack(side='left', padx=(15, 0))
+        
+        # Monitoring controls
+        control_frame = tk.LabelFrame(main_frame, text="📡 Monitoring Control", 
+                                     font=('Arial', 12, 'bold'), bg='#f0f0f0', fg='#2c3e50')
+        control_frame.pack(fill='x', pady=(0, 15))
+        
+        control_inner = tk.Frame(control_frame, bg='#f0f0f0')
+        control_inner.pack(fill='x', padx=15, pady=15)
+        
+        self.start_btn = ttk.Button(control_inner, text="▶ Start Monitoring", 
+                                   command=self.start_monitoring, style='Success.TButton')
+        self.start_btn.pack(side='left', padx=(0, 10))
+        
+        self.stop_btn = ttk.Button(control_inner, text="⏹ Stop Monitoring", 
+                                  command=self.stop_monitoring_cmd, style='Danger.TButton', state='disabled')
+        self.stop_btn.pack(side='left', padx=(0, 10))
+        
+        self.clear_btn = ttk.Button(control_inner, text="🗑 Clear Results", 
+                                   command=self.clear_results, style='Action.TButton')
+        self.clear_btn.pack(side='left', padx=(0, 10))
+        
+        # Status display
+        self.status_label = tk.Label(control_inner, text="Status: Ready to select log file", 
+                                    font=('Arial', 10, 'bold'), bg='#f0f0f0', fg='#007bff')
+        self.status_label.pack(side='left', padx=(20, 0))
+        
+        # Results count
+        self.count_label = tk.Label(control_inner, text="Results: 0", 
+                                   font=('Arial', 10, 'bold'), bg='#f0f0f0', fg='#28a745')
+        self.count_label.pack(side='right')
+        
+        # Results section
+        results_frame = tk.LabelFrame(main_frame, text="📊 Captured /who Results", 
+                                     font=('Arial', 12, 'bold'), bg='#f0f0f0', fg='#2c3e50')
+        results_frame.pack(fill='both', expand=True)
+        
+        # Create paned window for split layout
+        paned = ttk.PanedWindow(results_frame, orient='horizontal')
+        paned.pack(fill='both', expand=True, padx=15, pady=15)
+        
+        # Left panel - Results list
+        left_frame = tk.Frame(paned, bg='white', relief='sunken', bd=1)
+        paned.add(left_frame, weight=1)
+        
+        list_label = tk.Label(left_frame, text="Results List", font=('Arial', 10, 'bold'), 
+                             bg='#f8f9fa', fg='#495057')
+        list_label.pack(fill='x', padx=2, pady=2)
+        
+        # Listbox with scrollbar
+        list_scroll_frame = tk.Frame(left_frame, bg='white')
+        list_scroll_frame.pack(fill='both', expand=True, padx=2, pady=2)
+        
+        self.results_listbox = tk.Listbox(list_scroll_frame, font=('Arial', 9), 
+                                         selectmode='single', bg='white')
+        list_scrollbar = tk.Scrollbar(list_scroll_frame, orient='vertical', command=self.results_listbox.yview)
+        self.results_listbox.configure(yscrollcommand=list_scrollbar.set)
+        self.results_listbox.bind('<<ListboxSelect>>', self.on_result_select)
+        
+        self.results_listbox.pack(side='left', fill='both', expand=True)
+        list_scrollbar.pack(side='right', fill='y')
+        
+        # Right panel - Result details
+        right_frame = tk.Frame(paned, bg='white', relief='sunken', bd=1)
+        paned.add(right_frame, weight=2)
+        
+        detail_header = tk.Frame(right_frame, bg='#f8f9fa')
+        detail_header.pack(fill='x', padx=2, pady=2)
+        
+        detail_label = tk.Label(detail_header, text="Selected Result", font=('Arial', 10, 'bold'), 
+                               bg='#f8f9fa', fg='#495057')
+        detail_label.pack(side='left')
+        
+        # Detail control buttons
+        button_frame = tk.Frame(detail_header, bg='#f8f9fa')
+        button_frame.pack(side='right')
+        
+        self.copy_btn = ttk.Button(button_frame, text="📋 Copy", 
+                                  command=self.copy_selected_result, state='disabled')
+        self.copy_btn.pack(side='left', padx=(0, 5))
+        
+        self.save_btn = ttk.Button(button_frame, text="💾 Save", 
+                                  command=self.save_selected_result, state='disabled')
+        self.save_btn.pack(side='left')
+        
+        # Result content display
+        self.result_text = scrolledtext.ScrolledText(right_frame, wrap='word', 
+                                                    font=('Courier New', 9), 
+                                                    bg='#f8f9fa', state='disabled')
+        self.result_text.pack(fill='both', expand=True, padx=2, pady=2)
+        
+        # Instructions
+        instructions = ("💡 Instructions: Select your EverQuest log file, click 'Start Monitoring', then use /who commands in-game. "
+                       "Results will be captured automatically and appear in the list on the left. "
+                       "Select any result to view details and copy/save.")
+        
+        instr_label = tk.Label(main_frame, text=instructions, font=('Arial', 9), 
+                              bg='#e3f2fd', fg='#1565c0', wraplength=800, justify='left')
+        instr_label.pack(fill='x', pady=(15, 0))
+        
+    def select_log_file(self):
+        """Open file dialog to select EQ log file"""
+        initial_dir = os.path.expanduser("~/Documents")
+        if self.log_file_path:
+            initial_dir = os.path.dirname(self.log_file_path)
+            
+        file_path = filedialog.askopenfilename(
+            title="Select EverQuest Log File",
+            filetypes=[("Log files", "*.txt"), ("All files", "*.*")],
+            initialdir=initial_dir
+        )
+        
+        if file_path:
+            self.load_log_file(file_path)
+            
+    def load_log_file(self, file_path):
+        """Load the selected log file"""
+        try:
+            if not os.path.exists(file_path):
+                messagebox.showerror("Error", "Selected file does not exist!")
+                return
+                
+            self.log_file_path = file_path
+            self.last_file_size = os.path.getsize(file_path)
+            
+            # Update UI
+            filename = os.path.basename(file_path)
+            file_size = self.format_file_size(self.last_file_size)
+            self.file_label.config(text=f"📄 {filename} ({file_size})", fg='#28a745')
+            self.start_btn.config(state='normal')
+            self.update_status("File loaded - Ready to start monitoring", '#007bff')
+            
+            # Save settings
+            self.save_settings()
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load file: {str(e)}")
+            
+    def start_monitoring(self):
+        """Start monitoring the log file"""
+        if not self.log_file_path or not os.path.exists(self.log_file_path):
+            messagebox.showerror("Error", "Please select a valid log file first!")
+            return
+            
+        try:
+            # Set initial file size baseline (only capture new content)
+            self.initial_file_size = os.path.getsize(self.log_file_path)
+            self.last_file_size = self.initial_file_size
+            
+            # Update UI
+            self.monitoring = True
+            self.stop_monitoring = False
+            self.start_btn.config(state='disabled')
+            self.stop_btn.config(state='normal')
+            self.update_status("🟢 Monitoring Active - Watching for new /who results", '#28a745')
+            
+            # Start monitoring thread
+            self.monitor_thread = threading.Thread(target=self.monitor_file, daemon=True)
+            self.monitor_thread.start()
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to start monitoring: {str(e)}")
+            
+    def stop_monitoring_cmd(self):
+        """Stop monitoring the log file"""
+        self.monitoring = False
+        self.stop_monitoring = True
+        
+        self.start_btn.config(state='normal')
+        self.stop_btn.config(state='disabled')
+        self.update_status("⏹ Monitoring Stopped", '#dc3545')
+        
+    def monitor_file(self):
+        """Background thread to monitor the log file"""
+        while self.monitoring and not self.stop_monitoring:
+            try:
+                if not os.path.exists(self.log_file_path):
+                    self.root.after(0, lambda: self.update_status("❌ Log file not found!", '#dc3545'))
+                    break
+                    
+                current_size = os.path.getsize(self.log_file_path)
+                
+                if current_size > self.last_file_size:
+                    # Read only the new content
+                    with open(self.log_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        f.seek(self.last_file_size)
+                        new_content = f.read()
+                        
+                    self.last_file_size = current_size
+                    
+                    # Parse for /who results
+                    self.parse_who_results(new_content)
+                    
+                time.sleep(1)  # Check every second
+                
+            except Exception as e:
+                self.root.after(0, lambda: self.update_status(f"❌ Monitoring error: {str(e)}", '#dc3545'))
+                break
+                
+        self.monitoring = False
+        
+    def parse_who_results(self, content):
+        """Parse content for /who results"""
+        if not content.strip():
+            return
+            
+        lines = content.split('\\n')
+        current_who = []
+        in_who_result = False
+        who_timestamp = None
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Look for start of /who result
+            if 'Players on EverQuest:' in line:
+                in_who_result = True
+                current_who = [line]
+                # Extract timestamp
+                timestamp_match = re.match(r'^\\[([^\\]]+)\\]', line)
+                who_timestamp = timestamp_match.group(1) if timestamp_match else datetime.now().strftime("%a %b %d %H:%M:%S %Y")
+                continue
+                
+            if in_who_result:
+                current_who.append(line)
+                
+                # Look for end of /who result
+                if 'There are' in line and 'players in' in line:
+                    # Complete /who result found
+                    who_content = '\\n'.join(current_who)
+                    self.root.after(0, lambda w=who_content, t=who_timestamp: self.add_who_result(w, t))
+                    
+                    in_who_result = False
+                    current_who = []
+                    who_timestamp = None
+                    
+    def add_who_result(self, content, timestamp):
+        """Add a new /who result to the list"""
+        # Check for duplicates
+        for existing in self.who_results:
+            if existing['content'] == content and existing['timestamp'] == timestamp:
+                return  # Duplicate found, don't add
+                
+        # Extract location and player count for display
+        location_match = re.search(r'There are \\d+ players in (.+)\\.', content)
+        location = location_match.group(1) if location_match else "Unknown"
+        
+        count_match = re.search(r'There are (\\d+) players', content)
+        player_count = count_match.group(1) if count_match else "?"
+        
+        result = {
+            'timestamp': timestamp,
+            'content': content,
+            'location': location,
+            'player_count': player_count,
+            'display_name': f"[{timestamp}] {player_count} players in {location}"
+        }
+        
+        self.who_results.append(result)
+        
+        # Update UI
+        self.results_listbox.insert(0, result['display_name'])  # Add to top
+        self.update_count_label()
+        
+        # Show brief notification in status
+        self.update_status(f"✅ New /who captured: {player_count} players in {location}", '#28a745')
+        
+    def on_result_select(self, event):
+        """Handle result selection from listbox"""
+        selection = self.results_listbox.curselection()
+        if not selection:
+            self.selected_result_index = None
+            self.result_text.config(state='normal')
+            self.result_text.delete(1.0, tk.END)
+            self.result_text.insert(1.0, "Select a result from the list to view details")
+            self.result_text.config(state='disabled')
+            self.copy_btn.config(state='disabled')
+            self.save_btn.config(state='disabled')
+            return
+            
+        # Get selected result (remember list is reversed)
+        list_index = selection[0]
+        result_index = len(self.who_results) - 1 - list_index
+        
+        if 0 <= result_index < len(self.who_results):
+            self.selected_result_index = result_index
+            result = self.who_results[result_index]
+            
+            # Display result content
+            self.result_text.config(state='normal')
+            self.result_text.delete(1.0, tk.END)
+            self.result_text.insert(1.0, f"Timestamp: {result['timestamp']}\\n")
+            self.result_text.insert(tk.END, f"Location: {result['location']}\\n")
+            self.result_text.insert(tk.END, f"Player Count: {result['player_count']}\\n")
+            self.result_text.insert(tk.END, "\\n" + "="*50 + "\\n\\n")
+            self.result_text.insert(tk.END, result['content'])
+            self.result_text.config(state='disabled')
+            
+            self.copy_btn.config(state='normal')
+            self.save_btn.config(state='normal')
+            
+    def copy_selected_result(self):
+        """Copy selected result to clipboard"""
+        if self.selected_result_index is None:
+            return
+            
+        result = self.who_results[self.selected_result_index]
+        content = f"[{result['timestamp']}]\\n{result['content']}"
+        
+        self.root.clipboard_clear()
+        self.root.clipboard_append(content)
+        self.root.update()  # Ensure clipboard is updated
+        
+        self.update_status("📋 Result copied to clipboard!", '#28a745')
+        
+    def save_selected_result(self):
+        """Save selected result to file"""
+        if self.selected_result_index is None:
+            return
+            
+        result = self.who_results[self.selected_result_index]
+        
+        # Generate filename
+        safe_location = re.sub(r'[^\\w\\s-]', '', result['location']).strip()
+        safe_location = re.sub(r'[-\\s]+', '_', safe_location)
+        timestamp_part = result['timestamp'].split()[1] + "_" + result['timestamp'].split()[2]
+        filename = f"who_{safe_location}_{timestamp_part}.txt"
+        
+        file_path = filedialog.asksaveasfilename(
+            title="Save /who Result",
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+            initialvalue=filename
+        )
+        
+        if file_path:
+            try:
+                content = f"[{result['timestamp']}]\\n{result['content']}"
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                self.update_status(f"💾 Result saved to {os.path.basename(file_path)}", '#28a745')
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save file: {str(e)}")
+                
+    def clear_results(self):
+        """Clear all captured results"""
+        if not self.who_results:
+            return
+            
+        if messagebox.askyesno("Confirm", "Are you sure you want to clear all captured results?"):
+            self.who_results.clear()
+            self.results_listbox.delete(0, tk.END)
+            self.selected_result_index = None
+            
+            self.result_text.config(state='normal')
+            self.result_text.delete(1.0, tk.END)
+            self.result_text.insert(1.0, "No results captured yet")
+            self.result_text.config(state='disabled')
+            
+            self.copy_btn.config(state='disabled')
+            self.save_btn.config(state='disabled')
+            self.update_count_label()
+            
+            self.update_status("🗑 All results cleared", '#dc3545')
+            
+    def update_status(self, message, color='#007bff'):
+        """Update status label"""
+        self.status_label.config(text=f"Status: {message}", fg=color)
+        
+    def update_count_label(self):
+        """Update results count label"""
+        self.count_label.config(text=f"Results: {len(self.who_results)}")
+        
+    def format_file_size(self, size_bytes):
+        """Format file size in human readable format"""
+        if size_bytes == 0:
+            return "0 B"
+        size_names = ["B", "KB", "MB", "GB"]
+        i = 0
+        while size_bytes >= 1024 and i < len(size_names) - 1:
+            size_bytes /= 1024.0
+            i += 1
+        return f"{size_bytes:.1f} {size_names[i]}"
+        
+    def load_settings(self):
+        """Load application settings"""
+        try:
+            if os.path.exists(self.settings_file):
+                with open(self.settings_file, 'r') as f:
+                    settings = json.load(f)
+                    self.log_file_path = settings.get('last_log_file')
+        except:
+            pass  # Ignore errors loading settings
+            
+    def save_settings(self):
+        """Save application settings"""
+        try:
+            settings = {
+                'last_log_file': self.log_file_path
+            }
+            with open(self.settings_file, 'w') as f:
+                json.dump(settings, f)
+        except:
+            pass  # Ignore errors saving settings
+            
+    def on_closing(self):
+        """Handle application closing"""
+        self.stop_monitoring_cmd()
+        self.save_settings()
+        self.root.destroy()
+        
+    def run(self):
+        """Start the application"""
+        self.root.mainloop()
+
+if __name__ == "__main__":
+    # Check Python version
+    import sys
+    if sys.version_info < (3, 6):
+        print("Error: This application requires Python 3.6 or newer")
+        sys.exit(1)
+        
+    try:
+        app = EQWhoTracker()
+        app.run()
+    except KeyboardInterrupt:
+        print("\\nApplication interrupted by user")
+    except Exception as e:
+        print(f"Error starting application: {e}")
+        sys.exit(1)`;
+
+            const blob = new Blob([pythonCode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'eq_who_tracker.py';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show success message
+            setTimeout(() => {
+                alert('📥 Download complete! The eq_who_tracker.py file has been saved to your Downloads folder.');
+            }, 100);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                event.target.textContent = 'Copied!';
+                setTimeout(() => {
+                    event.target.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
