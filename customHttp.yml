@@ -1,0 +1,7 @@
+customHeaders:
+  - pattern: '/EQ_Who_Tracker.exe'
+    headers:
+      - key: 'Content-Type'
+        value: 'application/octet-stream'
+      - key: 'Content-Disposition'
+        value: 'attachment; filename="EQ_Who_Tracker.exe"'
