@@ -441,9 +441,16 @@
 
     <script>
         function downloadExecutable() {
-            // For now, show instructions for creating the executable
-            alert('🚀 Executable Download\n\nThe .exe version is currently being prepared!\n\nFor immediate use, please:\n1. Download the Python script below\n2. Follow the "Create .exe" instructions in the setup guide\n3. Or contact your guild leader for the compiled version\n\nSorry for the extra step - we\'re working on direct .exe hosting!');
-        }
+        // Point directly to the .exe file in the same directory
+        const exePath = "EQ_Who_Tracker.exe";  
+
+        const a = document.createElement('a');
+        a.href = exePath;
+        a.download = "EQ_Who_Tracker.exe"; // forces download instead of opening
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
 
         function downloadTracker() {
             const pythonCode = `#!/usr/bin/env python3
