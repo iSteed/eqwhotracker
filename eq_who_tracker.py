@@ -30,6 +30,7 @@ class EQWhoTracker:
         self.initial_file_size = 0
         self.who_results = []
         self.selected_result_index = None
+        self.selected_listbox_index = None  # Track listbox selection separately
         self.monitor_thread = None
         self.stop_monitoring = False
         
@@ -47,13 +48,24 @@ class EQWhoTracker:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
     def prevent_edit(self, event):
-        """Prevent editing but allow Ctrl+C for copying"""
-        if event.state & 4 and event.keysym == 'c':  # Ctrl+C
+        """Prevent editing but allow copy operations and navigation"""
+        # Allow copy operations
+        if event.state & 4 and event.keysym.lower() == 'c':  # Ctrl+C
             return  # Allow copy
-        return "break"  # Block all other key presses
+        if event.state & 4 and event.keysym.lower() == 'a':  # Ctrl+A (select all)
+            return  # Allow select all
+        
+        # Allow navigation keys
+        navigation_keys = {'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'Page_Up', 'Page_Down'}
+        if event.keysym in navigation_keys:
+            return  # Allow navigation
+            
+        # Block all editing keys (typing, delete, backspace, etc.)
+        return "break"
         
     def update_default_text(self):
         """Update the default text in result panel"""
+        self.result_text.config(state='normal')
         self.result_text.delete('1.0', tk.END)
         
         if self.who_results:
@@ -69,8 +81,10 @@ class EQWhoTracker:
             self.result_text.insert('1.0', "Select a result from the list to view details")
 
     def allow_selection(self, event):
-        """Allow mouse clicks for text selection"""
-        return  # Don't block mouse events
+        """Allow mouse events for proper text selection"""
+        # Don't interfere with text selection - let tkinter handle it naturally
+        # This ensures clicking, dragging, and double-clicking work properly
+        return
         
     def setup_styles(self):
         """Configure custom styles for better appearance"""
@@ -118,51 +132,57 @@ class EQWhoTracker:
                                      font=('Arial', 12, 'bold'), bg='#f0f0f0', fg='#2c3e50')
         control_frame.pack(fill='x', pady=(0, 15))
         
-        control_inner = tk.Frame(control_frame, bg='#f0f0f0')
-        control_inner.pack(fill='x', padx=15, pady=15)
+        # Top row - main control buttons
+        control_top = tk.Frame(control_frame, bg='#f0f0f0')
+        control_top.pack(fill='x', padx=15, pady=(15, 5))
         
-        self.start_btn = ttk.Button(control_inner, text="▶ Start Monitoring", 
+        self.start_btn = ttk.Button(control_top, text="▶ Start Monitoring", 
                                    command=self.start_monitoring, style='Success.TButton')
         self.start_btn.pack(side='left', padx=(0, 10))
         
-        self.stop_btn = ttk.Button(control_inner, text="⏹ Stop Monitoring", 
+        self.stop_btn = ttk.Button(control_top, text="⏹ Stop Monitoring", 
                                   command=self.stop_monitoring_cmd, style='Danger.TButton', state='disabled')
         self.stop_btn.pack(side='left', padx=(0, 10))
         
-        self.clear_btn = ttk.Button(control_inner, text="🗑 Clear Results", 
+        self.clear_btn = ttk.Button(control_top, text="🗑 Clear Results", 
                                    command=self.clear_results, style='Action.TButton')
         self.clear_btn.pack(side='left', padx=(0, 10))
         
-        # Historical data controls
-        history_label = tk.Label(control_inner, text="Load Historical:", 
-                                font=('Arial', 10), bg='#f0f0f0', fg='#333')
-        history_label.pack(side='left', padx=(20, 5))
+        # Results count (top right)
+        self.count_label = tk.Label(control_top, text="Results: 0", 
+                                   font=('Arial', 10, 'bold'), bg='#f0f0f0', fg='#28a745')
+        self.count_label.pack(side='right')
         
-        self.load_5min_btn = ttk.Button(control_inner, text="5 min", 
+        # Bottom row - historical data controls and status
+        control_bottom = tk.Frame(control_frame, bg='#f0f0f0')
+        control_bottom.pack(fill='x', padx=15, pady=(5, 15))
+        
+        # Historical data controls
+        history_label = tk.Label(control_bottom, text="Load Historical:", 
+                                font=('Arial', 10), bg='#f0f0f0', fg='#333')
+        history_label.pack(side='left', padx=(0, 5))
+        
+        self.load_5min_btn = ttk.Button(control_bottom, text="5 min", 
                                        command=lambda: self.load_historical_data(5), style='Primary.TButton')
         self.load_5min_btn.pack(side='left', padx=(0, 5))
         
-        self.load_15min_btn = ttk.Button(control_inner, text="15 min", 
+        self.load_15min_btn = ttk.Button(control_bottom, text="15 min", 
                                         command=lambda: self.load_historical_data(15), style='Primary.TButton')
         self.load_15min_btn.pack(side='left', padx=(0, 5))
         
-        self.load_1hour_btn = ttk.Button(control_inner, text="1 hour", 
+        self.load_1hour_btn = ttk.Button(control_bottom, text="1 hour", 
                                         command=lambda: self.load_historical_data(60), style='Primary.TButton')
         self.load_1hour_btn.pack(side='left', padx=(0, 5))
         
-        self.load_1day_btn = ttk.Button(control_inner, text="1 day", 
+        self.load_1day_btn = ttk.Button(control_bottom, text="1 day", 
                                        command=lambda: self.load_historical_data(1440), style='Primary.TButton')
         self.load_1day_btn.pack(side='left', padx=(0, 5))
         
-        # Status display
-        self.status_label = tk.Label(control_inner, text="Status: Ready to select log file", 
-                                    font=('Arial', 10, 'bold'), bg='#f0f0f0', fg='#007bff')
-        self.status_label.pack(side='left', padx=(20, 0))
-        
-        # Results count
-        self.count_label = tk.Label(control_inner, text="Results: 0", 
-                                   font=('Arial', 10, 'bold'), bg='#f0f0f0', fg='#28a745')
-        self.count_label.pack(side='right')
+        # Status display - now has its own space on the right
+        self.status_label = tk.Label(control_bottom, text="Status: Ready to select log file", 
+                                    font=('Arial', 10, 'bold'), bg='#f0f0f0', fg='#007bff',
+                                    wraplength=400, justify='left')  # Allow text wrapping if needed
+        self.status_label.pack(side='right', padx=(20, 0), fill='x', expand=True)
         
         # Results section - fixed height to ensure instructions are visible
         results_frame = tk.LabelFrame(main_frame, text="📊 Captured /who Results", 
@@ -186,7 +206,8 @@ class EQWhoTracker:
         list_scroll_frame.pack(fill='both', expand=True, padx=2, pady=2)
         
         self.results_listbox = tk.Listbox(list_scroll_frame, font=('Arial', 9), 
-                                         selectmode='single', bg='white', height=15)
+                                         selectmode='single', bg='white', height=15,
+                                         exportselection=False)  # Prevent selection loss when focus changes
         list_scrollbar = tk.Scrollbar(list_scroll_frame, orient='vertical', command=self.results_listbox.yview)
         self.results_listbox.configure(yscrollcommand=list_scrollbar.set)
         self.results_listbox.bind('<<ListboxSelect>>', self.on_result_select)
@@ -232,7 +253,12 @@ class EQWhoTracker:
         
         # Bind events to prevent editing but allow selection
         self.result_text.bind('<KeyPress>', self.prevent_edit)
+        # Allow all mouse events for proper text selection
         self.result_text.bind('<Button-1>', self.allow_selection)
+        self.result_text.bind('<B1-Motion>', self.allow_selection)
+        self.result_text.bind('<ButtonRelease-1>', self.allow_selection)
+        self.result_text.bind('<Double-Button-1>', self.allow_selection)
+        self.result_text.bind('<Triple-Button-1>', self.allow_selection)
         
         self.result_text.pack(side='left', fill='both', expand=True)
         text_scrollbar.pack(side='right', fill='y')
@@ -431,6 +457,8 @@ class EQWhoTracker:
         selection = self.results_listbox.curselection()
         if not selection:
             self.selected_result_index = None
+            self.selected_listbox_index = None
+            self.result_text.config(state='normal')
             self.result_text.delete('1.0', tk.END)
             self.result_text.insert('1.0', "Select a result from the list to view details")
             self.copy_btn.config(state='disabled')
@@ -440,13 +468,15 @@ class EQWhoTracker:
             
         # Get selected result (remember list is reversed)
         list_index = selection[0]
+        self.selected_listbox_index = list_index  # Store listbox selection
         result_index = len(self.who_results) - 1 - list_index
         
         if 0 <= result_index < len(self.who_results):
             self.selected_result_index = result_index
             result = self.who_results[result_index]
             
-            # Display result content
+            # Display result content - ensure widget is editable for programmatic updates
+            self.result_text.config(state='normal')
             self.result_text.delete('1.0', tk.END)
             self.result_text.insert('1.0', f"Timestamp: {result['timestamp']}\n")
             self.result_text.insert(tk.END, f"Location: {result['location']}\n")
@@ -690,6 +720,7 @@ class EQWhoTracker:
             self.who_results.clear()
             self.results_listbox.delete(0, tk.END)
             self.selected_result_index = None
+            self.selected_listbox_index = None
             
             self.update_default_text()  # This will show the generic message since no results
             
