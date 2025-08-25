@@ -12,7 +12,7 @@ from tkinter import ttk, filedialog, messagebox, scrolledtext
 import os
 import time
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 import json
 
@@ -133,6 +133,27 @@ class EQWhoTracker:
                                    command=self.clear_results, style='Action.TButton')
         self.clear_btn.pack(side='left', padx=(0, 10))
         
+        # Historical data controls
+        history_label = tk.Label(control_inner, text="Load Historical:", 
+                                font=('Arial', 10), bg='#f0f0f0', fg='#333')
+        history_label.pack(side='left', padx=(20, 5))
+        
+        self.load_5min_btn = ttk.Button(control_inner, text="5 min", 
+                                       command=lambda: self.load_historical_data(5), style='Primary.TButton')
+        self.load_5min_btn.pack(side='left', padx=(0, 5))
+        
+        self.load_15min_btn = ttk.Button(control_inner, text="15 min", 
+                                        command=lambda: self.load_historical_data(15), style='Primary.TButton')
+        self.load_15min_btn.pack(side='left', padx=(0, 5))
+        
+        self.load_1hour_btn = ttk.Button(control_inner, text="1 hour", 
+                                        command=lambda: self.load_historical_data(60), style='Primary.TButton')
+        self.load_1hour_btn.pack(side='left', padx=(0, 5))
+        
+        self.load_1day_btn = ttk.Button(control_inner, text="1 day", 
+                                       command=lambda: self.load_historical_data(1440), style='Primary.TButton')
+        self.load_1day_btn.pack(side='left', padx=(0, 5))
+        
         # Status display
         self.status_label = tk.Label(control_inner, text="Status: Ready to select log file", 
                                     font=('Arial', 10, 'bold'), bg='#f0f0f0', fg='#007bff')
@@ -191,6 +212,10 @@ class EQWhoTracker:
         self.copy_btn = ttk.Button(button_frame, text="📋 Copy", 
                                   command=self.copy_selected_result, state='disabled')
         self.copy_btn.pack(side='left', padx=(0, 5))
+        
+        self.opendkp_btn = ttk.Button(button_frame, text="📋 Copy for OpenDKP", 
+                                     command=self.copy_opendkp_format, state='disabled', style='Primary.TButton')
+        self.opendkp_btn.pack(side='left', padx=(0, 5))
         
         self.save_btn = ttk.Button(button_frame, text="💾 Save As...", 
                                   command=self.save_selected_result, state='disabled')
@@ -409,6 +434,7 @@ class EQWhoTracker:
             self.result_text.delete('1.0', tk.END)
             self.result_text.insert('1.0', "Select a result from the list to view details")
             self.copy_btn.config(state='disabled')
+            self.opendkp_btn.config(state='disabled')
             self.save_btn.config(state='disabled')
             return
             
@@ -429,6 +455,7 @@ class EQWhoTracker:
             self.result_text.insert(tk.END, result['content'])
             
             self.copy_btn.config(state='normal')
+            self.opendkp_btn.config(state='normal')
             self.save_btn.config(state='normal')
             
     def copy_selected_result(self):
@@ -444,6 +471,159 @@ class EQWhoTracker:
         self.root.update()  # Ensure clipboard is updated
         
         self.update_status("📋 Result copied to clipboard!", '#28a745')
+    
+    def copy_opendkp_format(self):
+        """Convert selected result to OpenDKP format and copy to clipboard"""
+        if self.selected_result_index is None:
+            return
+            
+        result = self.who_results[self.selected_result_index]
+        opendkp_content = self.convert_to_opendkp_format(result['content'])
+        
+        if not opendkp_content.strip():
+            messagebox.showwarning("No Data", "No valid player data found to convert to OpenDKP format.")
+            return
+        
+        self.root.clipboard_clear()
+        self.root.clipboard_append(opendkp_content)
+        self.root.update()  # Ensure clipboard is updated
+        
+        # Count converted players
+        player_count = len([line for line in opendkp_content.strip().split('\n') if line.strip()])
+        self.update_status(f"📋 {player_count} players copied in OpenDKP format!", '#28a745')
+    
+    def convert_to_opendkp_format(self, who_content):
+        """Convert /who result content to OpenDKP tab-separated format"""
+        lines = who_content.split('\n')
+        opendkp_lines = []
+        
+        # Class name mapping for consistency (including EQ class titles)
+        class_mappings = {
+            # Standard classes
+            'warrior': 'Warrior',
+            'paladin': 'Paladin',
+            'ranger': 'Ranger',
+            'shadow knight': 'Shadow Knight',
+            'monk': 'Monk',
+            'bard': 'Bard',
+            'rogue': 'Rogue',
+            'shaman': 'Shaman',
+            'necromancer': 'Necromancer',
+            'wizard': 'Wizard',
+            'magician': 'Magician',
+            'enchanter': 'Enchanter',
+            'druid': 'Druid',
+            'cleric': 'Cleric',
+            'beastlord': 'Beastlord',
+            'berserker': 'Berserker',
+            
+            # Enchanter titles
+            'phantasmist': 'Enchanter',
+            'illusionist': 'Enchanter',
+            'beguiler': 'Enchanter',
+            'arch convoker': 'Enchanter',
+            'coercer': 'Enchanter',
+            
+            # Magician titles
+            'conjurer': 'Magician',
+            'elementalist': 'Magician',
+            'arch mage': 'Magician',
+            'wizard': 'Wizard',
+            
+            # Wizard titles
+            'warlock': 'Wizard',
+            'sorcerer': 'Wizard',
+            'arcanist': 'Wizard',
+            
+            # Warrior titles
+            'myrmidon': 'Warrior',
+            'champion': 'Warrior',
+            'overlord': 'Warrior',
+            'warlord': 'Warrior',
+            
+            # Monk titles
+            'master': 'Monk',
+            'grandmaster': 'Monk',
+            'transcendent': 'Monk',
+            
+            # Cleric/Paladin titles
+            'templar': 'Paladin',
+            'crusader': 'Paladin',
+            'knight': 'Paladin',
+            'cavalier': 'Paladin',
+            
+            # Shadow Knight titles
+            'heretic': 'Shadow Knight',
+            'reaver': 'Shadow Knight',
+            'blackguard': 'Shadow Knight',
+            
+            # Common alternatives
+            'sk': 'Shadow Knight',
+            'shadowknight': 'Shadow Knight',
+            'enc': 'Enchanter',
+            'mag': 'Magician',
+            'wiz': 'Wizard',
+            'nec': 'Necromancer',
+            'war': 'Warrior',
+            'pal': 'Paladin',
+            'ran': 'Ranger',
+            'rog': 'Rogue',
+            'mnk': 'Monk',
+            'shm': 'Shaman',
+            'dru': 'Druid',
+            'cle': 'Cleric',
+            'bst': 'Beastlord',
+            'ber': 'Berserker',
+            
+            # Alternative names
+            'minstrel': 'Bard',
+            'troubadour': 'Bard',
+            'unknown': 'Unknown',
+        }
+        
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith('[') and (']' not in line[1:] or 'Players on EverQuest' in line):
+                continue
+                
+            # Skip separator lines and summary lines
+            if line.startswith('---') or line.startswith('There are'):
+                continue
+            
+            # Parse player lines - look for [Level Class] Name or [ANONYMOUS] Class
+            player_match = None
+            
+            # Remove timestamp prefix if present
+            if line.startswith('[') and '] [' in line:
+                parts = line.split('] ', 1)
+                if len(parts) > 1:
+                    line = parts[1]
+            
+            # Try to match [Level ClassTitle] PlayerName (Race) <Guild> pattern first
+            player_match = re.match(r'^\[(\d+)\s+([A-Za-z ]+)\]\s+([A-Za-z0-9_]+)', line)
+            if player_match:
+                level = player_match.group(1)
+                class_name = player_match.group(2).strip()
+                player_name = player_match.group(3).strip()
+            else:
+                # Try to match [ANONYMOUS] PlayerName pattern
+                anon_match = re.match(r'^\[ANONYMOUS\]\s+([A-Za-z0-9_]+)', line)
+                if anon_match:
+                    level = "0"  # Unknown level for anonymous
+                    class_name = "Unknown"  # No class info for anonymous
+                    player_name = anon_match.group(1).strip()
+                else:
+                    continue  # Skip lines we can't parse
+            
+            # Normalize class name
+            class_name_lower = class_name.lower()
+            normalized_class = class_mappings.get(class_name_lower, class_name)
+            
+            # Create OpenDKP format: 0\tPlayerName\tLevel\tClass
+            opendkp_line = f"0\t{player_name}\t{level}\t{normalized_class}"
+            opendkp_lines.append(opendkp_line)
+        
+        return '\n'.join(opendkp_lines)
         
     def save_selected_result(self):
         """Save selected result to file"""
@@ -514,10 +694,160 @@ class EQWhoTracker:
             self.update_default_text()  # This will show the generic message since no results
             
             self.copy_btn.config(state='disabled')
+            self.opendkp_btn.config(state='disabled')
             self.save_btn.config(state='disabled')
             self.update_count_label()
             
             self.update_status("🗑 All results cleared", '#dc3545')
+    
+    def load_historical_data(self, minutes_back):
+        """Load historical /who results from the log file for the specified time period"""
+        if not self.log_file_path or not os.path.exists(self.log_file_path):
+            messagebox.showerror("Error", "Please select a valid log file first!")
+            return
+            
+        try:
+            # Calculate cutoff time
+            cutoff_time = datetime.now() - timedelta(minutes=minutes_back)
+            
+            # Read entire log file and parse historical data
+            self.update_status(f"🔍 Loading last {minutes_back} minutes of /who data...", '#007bff')
+            
+            historical_results = self.parse_historical_who_results(self.log_file_path, cutoff_time)
+            
+            if not historical_results:
+                time_desc = self.format_time_description(minutes_back)
+                messagebox.showinfo("No Results", f"No /who results found in the last {time_desc}")
+                self.update_status("No historical results found", '#dc3545')
+                return
+            
+            # Clear current results and load historical ones
+            self.who_results.clear()
+            self.results_listbox.delete(0, tk.END)
+            self.selected_result_index = None
+            
+            # Add historical results (newest first)
+            for result in reversed(historical_results):
+                self.who_results.append(result)
+                self.results_listbox.insert(tk.END, result['display_name'])
+            
+            # Update UI
+            self.update_count_label()
+            self.result_text.config(state='normal')
+            self.result_text.delete(1.0, tk.END)
+            self.result_text.insert(1.0, "Select a result from the list to view details")
+            self.result_text.config(state='disabled')
+            self.copy_btn.config(state='disabled')
+            self.opendkp_btn.config(state='disabled')
+            self.save_btn.config(state='disabled')
+            
+            time_desc = self.format_time_description(minutes_back)
+            self.update_status(f"✅ Loaded {len(historical_results)} /who results from last {time_desc}", '#28a745')
+            
+        except Exception as e:
+            error_msg = f"Error loading historical data: {str(e)}"
+            messagebox.showerror("Error", error_msg)
+            self.update_status("❌ Failed to load historical data", '#dc3545')
+    
+    def parse_historical_who_results(self, file_path, cutoff_time):
+        """Parse the entire log file for /who results newer than cutoff_time"""
+        results = []
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            lines = content.split('\n')
+            current_who = []
+            in_who_result = False
+            who_timestamp = None
+            who_datetime = None
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Look for start of /who result
+                if 'Players on EverQuest:' in line:
+                    in_who_result = True
+                    current_who = [line]
+                    
+                    # Extract and parse timestamp
+                    timestamp_match = re.match(r'^\[([^\]]+)\]', line)
+                    if timestamp_match:
+                        who_timestamp = timestamp_match.group(1)
+                        who_datetime = self.parse_eq_timestamp(who_timestamp)
+                    else:
+                        who_timestamp = datetime.now().strftime("%a %b %d %H:%M:%S %Y")
+                        who_datetime = datetime.now()
+                    
+                    continue
+                
+                if in_who_result:
+                    current_who.append(line)
+                    
+                    # Look for end of /who result
+                    if 'There are' in line and 'players in' in line:
+                        # Complete /who result found
+                        if who_datetime and who_datetime >= cutoff_time:
+                            # This result is within our time range
+                            who_content = '\n'.join(current_who)
+                            
+                            # Extract location and player count
+                            location_match = re.search(r'There are \d+ players in (.+)\.', line)
+                            location = location_match.group(1) if location_match else "Unknown"
+                            
+                            count_match = re.search(r'There are (\d+) players', line)
+                            player_count = count_match.group(1) if count_match else "?"
+                            
+                            result = {
+                                'timestamp': who_timestamp,
+                                'content': who_content,
+                                'location': location,
+                                'player_count': player_count,
+                                'display_name': f"[{who_timestamp}] {player_count} players in {location}",
+                                'datetime': who_datetime
+                            }
+                            results.append(result)
+                        
+                        in_who_result = False
+                        current_who = []
+                        who_timestamp = None
+                        who_datetime = None
+        
+        except Exception as e:
+            raise Exception(f"Failed to parse log file: {str(e)}")
+        
+        # Sort by datetime (oldest first, will be reversed when adding to list)
+        results.sort(key=lambda x: x['datetime'])
+        return results
+    
+    def parse_eq_timestamp(self, timestamp_str):
+        """Parse EverQuest timestamp string to datetime object"""
+        try:
+            # EQ timestamp format: "Wed Oct 16 14:23:45 2024"
+            return datetime.strptime(timestamp_str, "%a %b %d %H:%M:%S %Y")
+        except ValueError:
+            try:
+                # Try alternative format without year
+                current_year = datetime.now().year
+                dt = datetime.strptime(f"{timestamp_str} {current_year}", "%a %b %d %H:%M:%S %Y")
+                return dt
+            except ValueError:
+                # If parsing fails, assume it's recent
+                return datetime.now()
+    
+    def format_time_description(self, minutes):
+        """Format minutes into a human-readable description"""
+        if minutes < 60:
+            return f"{minutes} minute{'s' if minutes != 1 else ''}"
+        elif minutes < 1440:  # less than a day
+            hours = minutes // 60
+            return f"{hours} hour{'s' if hours != 1 else ''}"
+        else:
+            days = minutes // 1440
+            return f"{days} day{'s' if days != 1 else ''}"
             
     def update_status(self, message, color='#007bff'):
         """Update status label"""

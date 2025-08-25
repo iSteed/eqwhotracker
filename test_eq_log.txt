@@ -1,0 +1,32 @@
+[Sun Aug 25 10:30:15 2024] Players on EverQuest:
+[Sun Aug 25 10:30:15 2024] ---------------------------
+[Sun Aug 25 10:30:15 2024] [ANONYMOUS] Warrior
+[Sun Aug 25 10:30:15 2024] [ANONYMOUS] Paladin
+[Sun Aug 25 10:30:15 2024] [50 Human Cleric] Healer (Innoruuk)
+[Sun Aug 25 10:30:15 2024] [45 Dwarf Warrior] Tank (Bertoxxulous)
+[Sun Aug 25 10:30:15 2024] [38 High Elf Wizard] Nuker (Quellious)
+[Sun Aug 25 10:30:15 2024] There are 5 players in East Commonlands.
+
+[Sun Aug 25 10:45:22 2024] Players on EverQuest:
+[Sun Aug 25 10:45:22 2024] ---------------------------
+[Sun Aug 25 10:45:22 2024] [ANONYMOUS] Ranger
+[Sun Aug 25 10:45:22 2024] [55 Barbarian Shaman] Shaman (Cazic-Thule)
+[Sun Aug 25 10:45:22 2024] [52 Wood Elf Druid] TreeHugger (Tunare)
+[Sun Aug 25 10:45:22 2024] [48 Human Monk] Fistfighter (Agnostic)
+[Sun Aug 25 10:45:22 2024] [60 Dark Elf Necromancer] DeathDealer (Innoruuk)
+[Sun Aug 25 10:45:22 2024] [43 Halfling Rogue] Sneaky (Bristlebane)
+[Sun Aug 25 10:45:22 2024] [39 Gnome Enchanter] MindBender (Brell Serilis)
+[Sun Aug 25 10:45:22 2024] There are 7 players in Kithicor Forest.
+
+[Sun Aug 25 11:02:33 2024] Players on EverQuest:
+[Sun Aug 25 11:02:33 2024] ---------------------------
+[Sun Aug 25 11:02:33 2024] [ANONYMOUS] Bard
+[Sun Aug 25 11:02:33 2024] [ANONYMOUS] Magician
+[Sun Aug 25 11:02:33 2024] [58 Human Paladin] Lightbringer (Mithaniel Marr)
+[Sun Aug 25 11:02:33 2024] [54 Erudite Wizard] Spellslinger (Quellious)
+[Sun Aug 25 11:02:33 2024] [51 Troll Shadow Knight] DarkKnight (Innoruuk)
+[Sun Aug 25 11:02:33 2024] [46 Iksar Monk] Scalefist (Cazic-Thule)
+[Sun Aug 25 11:02:33 2024] [42 High Elf Cleric] Divinehealer (Tunare)
+[Sun Aug 25 11:02:33 2024] [50 Barbarian Warrior] IceAxe (Rallos Zek)
+[Sun Aug 25 11:02:33 2024] [35 Wood Elf Ranger] BowMaster (Tunare)
+[Sun Aug 25 11:02:33 2024] There are 9 players in Plane of Knowledge.
